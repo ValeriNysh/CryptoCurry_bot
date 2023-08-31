@@ -9,6 +9,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import static java.awt.SystemColor.text;
 
@@ -19,30 +20,45 @@ public class MyBot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
+        boolean ok = false;
         var currencies = new ArrayList<String>();
         currencies.add("BTC");
         currencies.add("ETH");
         currencies.add("LTC");
         currencies.add("DOGE");
 
-//        for (String currency : currencies) {
-//            System.out.println(currency);
+        var chatId = update.getMessage().getChatId();
+        // What User sends to me
+        var text = update.getMessage().getText().toUpperCase();
+
+        String[] separatedCurs = text.split(",");
 
 
-            var chatId = update.getMessage().getChatId();
-            // What User sends to me
-            var text = update.getMessage().getText().toUpperCase();
-
+        try {
             // What I send to user
             var message = new SendMessage();
             message.setChatId(chatId);
 
-            boolean ok = false;
+            if (separatedCurs.length > 1) {
+                StringBuilder stringCurrencies = new StringBuilder();
 
-            try {
-                for (int i=0; i<currencies.size(); i++) {
-                    if (text.equals(currencies.get(i))) {
+                for (String sep : separatedCurs) {
+                    for (String curr : currencies) {
+                        if (sep.equals(curr)) {
+                            var price = CryptoPrice.spotPrice(curr);
+                            stringCurrencies.append(curr).append(": ").append(price.getAmount().doubleValue()).append(", ");
+                        }
+                    }
+                }
+                stringCurrencies.setLength(stringCurrencies.length() - 1);
+                message.setText(stringCurrencies.toString());
+                execute(message);
+            }
+            else {
+                for (String s : currencies) {
+                    if (text.equals(s)) {
                         getCurrency(text, message);
+                        execute(message);
                         ok = true;
                         break;
                     }
@@ -52,19 +68,20 @@ public class MyBot extends TelegramLongPollingBot {
                         message.setText("Hi, dude! What's up?");
                         execute(message);
                     } else if (text.equals("/ALL")) {
-                        for (int i=0; i<currencies.size(); i++) {
-                            getCurrency(currencies.get(i), message);
+                        for (String currency : currencies) {
+                            getCurrency(currency, message);
+                            execute(message);
                         }
                     } else {
                         message.setText("Unknown command!");
                         execute(message);
                     }
-
-//                    execute(message);
                 }
-            } catch (TelegramApiException | IOException | CryptoException e) {
-                System.out.println("Error!");
             }
+
+        } catch (TelegramApiException | IOException | CryptoException e) {
+            System.out.println("Error!");
+        }
     }
 
     @Override
@@ -75,7 +92,6 @@ public class MyBot extends TelegramLongPollingBot {
     void getCurrency(String currency, SendMessage message) throws IOException, CryptoException, TelegramApiException {
         var price = CryptoPrice.spotPrice(currency);
         message.setText(currency + " price: " + price.getAmount().doubleValue());
-        execute(message);
     }
 
 }
