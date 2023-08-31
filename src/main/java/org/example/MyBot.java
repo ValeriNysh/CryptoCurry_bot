@@ -28,20 +28,16 @@ public class MyBot extends TelegramLongPollingBot {
         currencies.add("DOGE");
 
         var chatId = update.getMessage().getChatId();
-        // What User sends to me
         var text = update.getMessage().getText().toUpperCase();
 
-        String[] separatedCurs = text.split(",");
-
+        String[] separatedCurs = text.split("[,\\s.]+");
 
         try {
-            // What I send to user
             var message = new SendMessage();
             message.setChatId(chatId);
 
             if (separatedCurs.length > 1) {
                 StringBuilder stringCurrencies = new StringBuilder();
-
                 for (String sep : separatedCurs) {
                     for (String curr : currencies) {
                         if (sep.equals(curr)) {
@@ -50,7 +46,7 @@ public class MyBot extends TelegramLongPollingBot {
                         }
                     }
                 }
-                stringCurrencies.setLength(stringCurrencies.length() - 1);
+                stringCurrencies.setLength(stringCurrencies.length() - 2);
                 message.setText(stringCurrencies.toString());
                 execute(message);
             }
@@ -84,14 +80,14 @@ public class MyBot extends TelegramLongPollingBot {
         }
     }
 
-    @Override
-    public String getBotUsername() {
-        return "CryptoCurry_bot";
-    }
-
     void getCurrency(String currency, SendMessage message) throws IOException, CryptoException, TelegramApiException {
         var price = CryptoPrice.spotPrice(currency);
         message.setText(currency + " price: " + price.getAmount().doubleValue());
+    }
+
+    @Override
+    public String getBotUsername() {
+        return "CryptoCurry_bot";
     }
 
 }

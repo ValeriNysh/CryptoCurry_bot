@@ -7,13 +7,8 @@ public class Main {
     public static void main(String[] args)  throws Exception {
         var api = new TelegramBotsApi(DefaultBotSession.class);
         api.registerBot(new MyBot());
-
-
     }
 }
-
-
-
 
 
 // CryptoCurry_bot
