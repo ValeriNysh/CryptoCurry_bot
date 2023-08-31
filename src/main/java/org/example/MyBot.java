@@ -15,7 +15,7 @@ import static java.awt.SystemColor.text;
 
 public class MyBot extends TelegramLongPollingBot {
     public MyBot() {
-        super("6461237109:AAFyjUG08qskOF6krTOMhrmEJxqLVg9PvS8");
+        super("My_Bot's_Personal_Token");
     }
 
     @Override
