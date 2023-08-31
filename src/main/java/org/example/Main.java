@@ -12,4 +12,4 @@ public class Main {
 
 
 // CryptoCurry_bot
-// 6461237109:AAFyjUG08qskOF6krTOMhrmEJxqLVg9PvS8
+// here should be a token
